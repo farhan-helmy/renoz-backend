@@ -22,9 +22,9 @@ router.get("/users/all", auth, async (req, res) => {
   if (req.user.isAdmin) {
     try {
       const allUsers = await User.find();
-      res.status(200).send({
+      res.status(200).send(
         allUsers
-      });
+      );
     } catch (e) {
       res.status(400).send(e);
     }

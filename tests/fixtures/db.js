@@ -6,6 +6,13 @@ const {
     nanoid
 } = require("nanoid");
 
+const serviceId = new mongoose.Types.ObjectId()
+const serviceRefurbish = {
+    _id: serviceId,
+    service_name: "Refurbish",
+    description: "cuci2",
+}
+
 const normalUserId = nanoid(5)
 const normalUser = {
     _id: normalUserId,
@@ -35,11 +42,13 @@ const adminUser = {
     }]
 }
 
+
 const setupDatabase = async () => {
     await User.deleteMany()
     await Service.deleteMany()
     await new User(normalUser).save()
     await new User(adminUser).save()
+    await new Service(serviceRefurbish).save()
 }
 
 module.exports = {
@@ -47,5 +56,6 @@ module.exports = {
     normalUser,
     setupDatabase,
     adminUserId,
-    adminUser
+    adminUser,
+    serviceId
 }

@@ -57,5 +57,6 @@ module.exports = {
     setupDatabase,
     adminUserId,
     adminUser,
-    serviceId
+    serviceId,
+    serviceRefurbish
 }

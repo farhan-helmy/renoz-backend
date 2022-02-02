@@ -13,8 +13,8 @@ const serviceSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    avatar: {
-        type: Buffer
+    picture_link: {
+        type: String
     },
   },
   {

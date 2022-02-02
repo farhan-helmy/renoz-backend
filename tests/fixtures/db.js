@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const User = require('../../src/models/user')
 const Service = require('../../src/models/service')
+const Booking = require('../../src/models/booking')
 const {
     nanoid
 } = require("nanoid");
@@ -42,13 +43,22 @@ const adminUser = {
     }]
 }
 
+const bookingId = new mongoose.Types.ObjectId()
+const booking = {
+    _id : bookingId,
+    user: normalUserId,
+    service: serviceId
+}
+
 
 const setupDatabase = async () => {
     await User.deleteMany()
     await Service.deleteMany()
+    await Booking.deleteMany()
     await new User(normalUser).save()
     await new User(adminUser).save()
     await new Service(serviceRefurbish).save()
+    await new Booking(booking).save()
 }
 
 module.exports = {
@@ -58,5 +68,6 @@ module.exports = {
     adminUserId,
     adminUser,
     serviceId,
-    serviceRefurbish
+    serviceRefurbish,
+    bookingId
 }

@@ -22,10 +22,10 @@ const serviceSchema = new mongoose.Schema(
   }
 );
 
-serviceSchema.virtual('users', {
-  ref: 'User',
+serviceSchema.virtual('bookings', {
+  ref: 'Booking',
   localField: '_id',
-  foreignField: 'services'
+  foreignField: 'service'
 })
 
 const Service = mongoose.model("Service", serviceSchema);

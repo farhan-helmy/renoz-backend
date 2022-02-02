@@ -28,6 +28,28 @@ const adminUser = {
   ],
 };
 
+const normalUserId = nanoid(5);
+const normalUser = {
+  _id: normalUserId,
+  name: "farhan",
+  email: "user@example.com",
+  password: "ExampleUser123!",
+  address: "jalan bnangi",
+  phone_no: 1234145,
+  house_type: "kondominium",
+  isAdmin: false,
+  tokens: [
+    {
+      token: jwt.sign(
+        {
+          _id: normalUserId,
+        },
+        process.env.JWT_SECRET
+      ),
+    },
+  ],
+};
+
 const serviceId = new mongoose.Types.ObjectId();
 const oneService = {
   _id: serviceId,
@@ -39,6 +61,7 @@ const seed = async () => {
   await User.deleteMany();
   await Service.deleteMany();
   await new User(adminUser).save();
+  await new User(normalUser).save();
   await new Service(oneService).save();
   return;
 };

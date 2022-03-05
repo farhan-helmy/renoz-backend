@@ -15,7 +15,7 @@ beforeEach(setupDatabase);
 
 test("Should create service", async () => {
   await request(app)
-    .post("/service")
+    .post("/v1/service")
     .set("Authorization", `Bearer ${adminUser.tokens[0].token}`)
     .send({
       service_name: "Refursbish",
@@ -26,7 +26,7 @@ test("Should create service", async () => {
 
 test("Should not create service (not admin)", async () => {
   await request(app)
-    .post("/service")
+    .post("/v1/service")
     .set("Authorization", `Bearer ${normalUser.tokens[0].token}`)
     .send({
       service_name: "Refursbish",
@@ -37,7 +37,7 @@ test("Should not create service (not admin)", async () => {
 
 test("Should get all services", async () => {
   const response = await request(app)
-    .get("/services")
+    .get("/v1/services")
     .set("Authorization", `Bearer ${normalUser.tokens[0].token}`)
     .send()
     .expect(200);
@@ -46,7 +46,7 @@ test("Should get all services", async () => {
 
 test("Should get one service", async () => {
   const response = await request(app)
-    .get(`/services/${serviceRefurbish._id}`)
+    .get(`/v1/services/${serviceRefurbish._id}`)
     .set("Authorization", `Bearer ${normalUser.tokens[0].token}`)
     .send()
     .expect(200);
@@ -56,7 +56,7 @@ test("Should get one service", async () => {
 
 test("Admin should update valid service field", async () => {
     await request(app)
-      .patch(`/services/${serviceRefurbish._id}`)
+      .patch(`/v1/services/${serviceRefurbish._id}`)
       .set("Authorization", `Bearer ${adminUser.tokens[0].token}`)
       .send({
         service_name: "Refursbish2"

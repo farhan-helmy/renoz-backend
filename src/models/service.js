@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const mongooseDateFormat = require('mongoose-date-format')
 
 const serviceSchema = new mongoose.Schema(
   {
@@ -27,6 +28,8 @@ serviceSchema.virtual('bookings', {
   localField: '_id',
   foreignField: 'service'
 })
+
+serviceSchema.plugin(mongooseDateFormat)
 
 const Service = mongoose.model("Service", serviceSchema);
 

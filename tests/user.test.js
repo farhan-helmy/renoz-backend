@@ -12,7 +12,7 @@ const {
 beforeEach(setupDatabase)
 
 test('Should signup a new user', async () => {
-    const response = await request(app).post('/users').send({
+    const response = await request(app).post('/v1/users').send({
         name: 'farhandota',
         email: 'farhandota@example.com',
         address: 'jalan bnangi',
@@ -37,7 +37,7 @@ test('Should signup a new user', async () => {
 })
 
 test('Should login existing user', async () => {
-    const response = await request(app).post('/users/login').send({
+    const response = await request(app).post('/v1/users/login').send({
         email: normalUser.email,
         password: normalUser.password
     }).expect(200)
@@ -46,7 +46,7 @@ test('Should login existing user', async () => {
 })
 
 test('Should not login nonexistent user', async () => {
-    await request(app).post('/users/login').send({
+    await request(app).post('/v1/users/login').send({
         email: normalUser.email,
         password: 'thisisnotmypass'
     }).expect(400)
@@ -54,7 +54,7 @@ test('Should not login nonexistent user', async () => {
 
 test('Should get profile for user', async () => {
     await request(app)
-        .get('/users/me')
+        .get('/v1/users/me')
         .set('Authorization', `Bearer ${normalUser.tokens[0].token}`)
         .send()
         .expect(200)
@@ -62,7 +62,7 @@ test('Should get profile for user', async () => {
 
 test('Should get all user', async () => {
     const response = await request(app)
-        .get('/users/all')
+        .get('/v1/users/all')
         .set('Authorization', `Bearer ${adminUser.tokens[0].token}`)
         .send()
         .expect(200)
@@ -71,14 +71,14 @@ test('Should get all user', async () => {
 
 test('Should not get profile for unauthenticated user', async () => {
     await request(app)
-        .get('/users/me')
+        .get('/v1/users/me')
         .send()
         .expect(401)
 })
 
 test('Should delete account for user', async () => {
     await request(app)
-        .delete('/users/me')
+        .delete('/v1/users/me')
         .set('Authorization', `Bearer ${normalUser.tokens[0].token}`)
         .send()
         .expect(200)
@@ -88,14 +88,14 @@ test('Should delete account for user', async () => {
 
 test('Should not delete account for unauthenticate user', async () => {
     await request(app)
-        .delete('/users/me')
+        .delete('/v1/users/me')
         .send()
         .expect(401)
 })
 
 test('Should update valid user fields', async () => {
     await request(app)
-        .patch('/users/me')
+        .patch('/v1/users/me')
         .set('Authorization', `Bearer ${normalUser.tokens[0].token}`)
         .send({
             name: 'Jess'
@@ -107,7 +107,7 @@ test('Should update valid user fields', async () => {
 
 test('Should not update invalid user fields', async () => {
     await request(app)
-        .patch('/users/me')
+        .patch('/v1/users/me')
         .set('Authorization', `Bearer ${normalUser.tokens[0].token}`)
         .send({
             location: 'Philadelphia'

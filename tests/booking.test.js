@@ -16,7 +16,7 @@ beforeEach(setupDatabase);
 
 test("Should create booking", async () => {
   await request(app)
-    .post("/booking")
+    .post("/v1/booking")
     .set("Authorization", `Bearer ${normalUser.tokens[0].token}`)
     .send({
       service_id: serviceRefurbish._id,
@@ -26,7 +26,7 @@ test("Should create booking", async () => {
 
 test("Should get one booking", async () => {
   await request(app)
-    .get(`/booking/${bookingId}`)
+    .get(`/v1/booking/${bookingId}`)
     .set("Authorization", `Bearer ${normalUser.tokens[0].token}`)
     .send()
     .expect(200);
@@ -34,7 +34,7 @@ test("Should get one booking", async () => {
 
 test("Admin should get all booking", async () => {
   await request(app)
-    .get(`/booking`)
+    .get(`/v1/booking`)
     .set("Authorization", `Bearer ${adminUser.tokens[0].token}`)
     .send()
     .expect(200);
@@ -42,7 +42,7 @@ test("Admin should get all booking", async () => {
 
 test("Normal user should not get all booking", async () => {
   await request(app)
-    .get(`/booking`)
+    .get(`/v1/booking`)
     .set("Authorization", `Bearer ${normalUser.tokens[0].token}`)
     .send()
     .expect(401);

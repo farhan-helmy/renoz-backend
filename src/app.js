@@ -10,8 +10,8 @@ const app = express()
 
 app.use(express.json())
 app.use(cors())
-app.use(userRouter)
-app.use(serviceRouter)
-app.use(bookingRouter)
+app.use('/v1', userRouter)
+app.use('/v1', serviceRouter)
+app.use('/v1', bookingRouter)
 
 module.exports = app

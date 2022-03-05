@@ -97,9 +97,10 @@ router.post(
   "/services/picture/:id",
   upload.single("image"),
   async (req, res) => {
+    //console.log(req)
     const file = req.file
     const result = await uploadFile(file);
-    console.log(result)
+    //console.log(result)
     await unlinkFile(file.path);
     const service = await Service.findOne({ _id: req.params.id });
 
@@ -119,7 +120,7 @@ router.post(
 );
 
 router.get('/images/:key', (req, res) => {
-  console.log(req.params)
+  //console.log(req.params)
   const key = req.params.key
   const readStream = getFileStream(key)
   

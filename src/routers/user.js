@@ -62,7 +62,10 @@ router.post("/users/logout", auth, async (req, res) => {
 });
 
 router.get("/users/me", auth, async (req, res) => {
-  res.send(req.user);
+  const user = req.user
+  res.send({
+    user
+  });
 });
 
 router.patch("/users/me", auth, async (req, res) => {

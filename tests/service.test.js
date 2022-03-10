@@ -8,10 +8,13 @@ const {
   setupDatabase,
   adminUserId,
   adminUser,
-  serviceRefurbish
+  serviceRefurbish,
+  resetDatabase
 } = require("./fixtures/db");
 
 beforeEach(setupDatabase);
+
+afterAll(resetDatabase);
 
 test("Should create service", async () => {
   await request(app)

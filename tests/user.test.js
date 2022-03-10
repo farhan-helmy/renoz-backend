@@ -5,11 +5,14 @@ const {
     normalUserId,
     normalUser,
     setupDatabase,
-    adminUser
+    adminUser,
+    resetDatabase
 } = require('./fixtures/db')
 
 
 beforeEach(setupDatabase)
+
+afterAll(resetDatabase);
 
 test('Should signup a new user', async () => {
     const response = await request(app).post('/v1/users').send({

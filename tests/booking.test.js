@@ -10,9 +10,12 @@ const {
   adminUser,
   serviceRefurbish,
   bookingId,
+  resetDatabase
 } = require("./fixtures/db");
 
 beforeEach(setupDatabase);
+
+afterAll(resetDatabase);
 
 test("Should create booking", async () => {
   await request(app)

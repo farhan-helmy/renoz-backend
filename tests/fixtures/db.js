@@ -61,6 +61,10 @@ const setupDatabase = async () => {
     await new Booking(booking).save()
 }
 
+const resetDatabase = async () => {
+    mongoose.connection.close()
+}
+
 module.exports = {
     normalUserId,
     normalUser,
@@ -69,5 +73,6 @@ module.exports = {
     adminUser,
     serviceId,
     serviceRefurbish,
-    bookingId
+    bookingId,
+    resetDatabase
 }

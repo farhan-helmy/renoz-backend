@@ -2,7 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const sharp = require("sharp");
 const auth = require("../middleware/auth");
-const Service = require("../models/service");
+const servicesController = require("../controllers/services");
 const { uploadFile, getFileStream } = require("../helpers/s3");
 const fs = require("fs");
 const util = require("util");
@@ -10,74 +10,13 @@ const unlinkFile = util.promisify(fs.unlink);
 
 const router = new express.Router();
 
-router.post("/service", auth, async (req, res) => {
-  const service = new Service(req.body);
-  if (req.user.isAdmin) {
-    try {
-      await service.save();
-      res.status(201).send({
-        service,
-      });
-    } catch (e) {
-      res.status(400).send(e);
-    }
-  } else {
-    res.status(401).send();
-  }
-});
+router.post("/service", auth, servicesController.createService);
 
-router.get("/services", auth, async (req, res) => {
-  try {
-    const allService = await Service.find();
-    res.status(200).send(allService);
-  } catch (e) {
-    res.status(400).send(e);
-  }
-});
+router.get("/services", auth, servicesController.getAllServices);
 
-router.get("/services/:id", auth, async (req, res) => {
-  try {
-    const service = await Service.findOne({ _id: req.params.id });
+router.get("/services/:id", auth, servicesController.getServiceById);
 
-    if (!service) {
-      return res.status(404).send();
-    }
-
-    res.status(200).send(service);
-  } catch (e) {
-    res.status(400).send(e);
-  }
-});
-
-router.patch("/services/:id", auth, async (req, res) => {
-  const updates = Object.keys(req.body);
-  const allowedUpdates = ["description", "service_name"];
-  const isValidOperation = updates.every((update) =>
-    allowedUpdates.includes(update)
-  );
-
-  if (!isValidOperation) {
-    return res.status(400).send({ error: "Invalid updates!" });
-  }
-
-  if (req.user.isAdmin) {
-    try {
-      const service = await Service.findOne({ _id: req.params.id });
-
-      if (!service) {
-        return res.status(404).send();
-      }
-
-      updates.forEach((update) => (service[update] = req.body[update]));
-      await service.save();
-      res.send(service);
-    } catch (e) {
-      res.status(400).send(e);
-    }
-  } else {
-    res.status(401).send();
-  }
-});
+router.patch("/services/:id", auth, servicesController.updateService);
 
 const upload = multer({
   limits: {

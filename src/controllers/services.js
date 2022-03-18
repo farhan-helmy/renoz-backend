@@ -1,8 +1,9 @@
-const Service = require("../models/service");
-const { uploadFile, getFileStream } = require("../helpers/s3");
 const fs = require("fs");
+const sharp = require("sharp");
 const util = require("util");
+const { uploadFile, getFileStream, deleteFile } = require("../helpers/s3");
 const unlinkFile = util.promisify(fs.unlink);
+const Service = require("../models/service");
 
 const createService = async (req, res) => {
   const service = new Service(req.body);
@@ -73,22 +74,75 @@ const updateService = async (req, res) => {
   }
 }
 
-const updateServiceImage = 
-async (req, res) => {
+const updateServiceImage = async (req, res) => {
   //console.log(req)
   const file = req.file
-  const result = await uploadFile(file);
-  //console.log(result)
-  await unlinkFile(file.path);
   const service = await Service.findOne({ _id: req.params.id });
+  if (!service) {
+    return res.status(404).send();
+  }
+
+  if (service.picture_link) {
+    await deleteFile(service.picture_link)
+  }
+
+  await uploadFile(file.path, file.filename)
+  await unlinkFile(file.path);
+  
+  service["picture_link"] = file.filename
+  await service.save()
+  res.send(service);
+}
+
+const getImage = (req, res) => {
+  //console.log(req.params)
+
+  const key = req.params.key
+  const readStream = getFileStream(key)
+  // console.log({readStream})
+  readStream
+  .on('error', error => {
+    console.log(error)
+    return res.status(400).send({
+      error: error.message,
+    })
+  })
+  .pipe(res)
+  // readStream.pipe(res)
+}
+
+const deleteImage = async (req, res) => {
+
+  try {
+    
+    const service = await Service.findOne({ _id: req.params.id });
 
     if (!service) {
       return res.status(404).send();
     }
-  
-  service["picture_link"] = result.Key
-  await service.save()
-  res.send(service);
+    
+    if (service.picture_link) {
+      await deleteFile(service.picture_link)
+      service.picture_link = undefined
+      await service.save()
+    }
+
+    res.send(service)
+
+  } catch (error) {
+    console.log({error})
+    res.status(400).send({
+      error: error.message,
+    })
+  } finally {
+    res.status(400).send()
+  }
+}
+
+const routeHandler = (error, req, res, next) => {
+  res.status(400).send({
+    error: error.message,
+  });
 }
 
 module.exports = {
@@ -96,5 +150,8 @@ module.exports = {
   getAllServices,
   getServiceById,
   updateService,
-  updateServiceImage
+  updateServiceImage,
+  getImage,
+  deleteImage,
+  routeHandler
 }

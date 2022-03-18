@@ -1,7 +1,13 @@
 const request = require("supertest");
+const path = require('path');
 const app = require("../src/app");
 const User = require("../src/models/user");
 const Service = require("../src/models/service");
+const { uploadFile, getFileStream } = require("../src/helpers/s3");
+const fs = require('fs')
+const {S3} = require('aws-sdk')
+const { PassThrough } = require('stream')
+
 const {
   normalUserId,
   normalUser,
@@ -48,7 +54,7 @@ test("Should get all services", async () => {
 });
 
 test("Should get one service", async () => {
-  const response = await request(app)
+  await request(app)
     .get(`/v1/services/${serviceRefurbish._id}`)
     .set("Authorization", `Bearer ${normalUser.tokens[0].token}`)
     .send()
@@ -58,14 +64,75 @@ test("Should get one service", async () => {
 
 
 test("Admin should update valid service field", async () => {
-    await request(app)
-      .patch(`/v1/services/${serviceRefurbish._id}`)
-      .set("Authorization", `Bearer ${adminUser.tokens[0].token}`)
-      .send({
-        service_name: "Refursbish2"
-      })
-      .expect(200);
-      const service = await Service.findById(serviceRefurbish._id)
-    
-      expect(service.service_name).toEqual('Refursbish2')
+  await request(app)
+    .patch(`/v1/services/${serviceRefurbish._id}`)
+    .set("Authorization", `Bearer ${adminUser.tokens[0].token}`)
+    .send({
+      service_name: "Refursbish2"
+    })
+    .expect(200);
+    const service = await Service.findById(serviceRefurbish._id)
+  
+    expect(service.service_name).toEqual('Refursbish2')
+});
+
+const mockReadable = new PassThrough()
+
+jest.mock('../src/helpers/s3', () => {
+  return {
+    uploadFile: jest.fn().mockReturnThis(),
+    getObject: jest.fn().mockReturnThis(),
+    getFileStream: jest.fn().mockImplementation(() => mockReadable),
+ };
+});
+
+describe("Operation on service image", () => {
+  const image = path.resolve(__dirname, `./fixtures/image.jpg`);
+  let service;
+
+  beforeAll(async () => {
+    service = await Service.findById(serviceRefurbish._id)
   });
+  
+  test('Should be able to update service image', async () => {
+    expect(service.picture_link).toBeUndefined()
+
+    await request(app)
+      .post(`/v1/services/picture/${serviceRefurbish._id}`)
+      .set('content-type', 'application/octet-stream')
+      .set("Authorization", `Bearer ${adminUser.tokens[0].token}`)
+      .attach('image', image)
+      .expect(200);
+
+    expect(uploadFile).toHaveBeenCalledTimes(1)
+    service = await Service.findById(serviceRefurbish._id)
+    
+    expect(service.picture_link).toBeTruthy()
+  })
+
+  // test('Should be able to get service image', async () => {
+
+  //   await request(app)
+  //   .get(`/v1/images/${service.picture_link}`)
+  //   .expect(response => {console.log(response)})
+  //   .expect(200);
+
+  //   setTimeout(() => {
+  //     mockReadable.emit('data', 'beep!')
+  //     mockReadable.emit('end')
+  //   }, 100)
+
+  //   expect(getFileStream).toHaveBeenCalledTimes(1)
+
+  // })
+
+  test('Should be able to delete service image', async () => { 
+    await request(app)
+    .delete(`/v1/services/picture/${serviceRefurbish._id}`)
+    .set("Authorization", `Bearer ${adminUser.tokens[0].token}`)
+    .expect(200);
+    service = await Service.findById(serviceRefurbish._id)
+
+    expect(service.picture_link).toBeUndefined()
+  })
+});
